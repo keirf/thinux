@@ -1,0 +1,47 @@
+https://rhasbury.wordpress.com/2019/05/27/orange-pi-zero-spi-eeprom-based-nfs-boot/
+
+# Accounts
+# keir:keirkeir
+# root:root1234
+
+## PC
+sudo apt install swig gcc-arm-linux-gnueabihf
+cd u-boot
+git checkout v2020.10 # v2021.01 network is broken
+make orangepi_zero_defconfig
+make CROSS_COMPILE=arm-linux-gnueabihf-
+
+## PC: Make U-Boot SD card (Optional)
+sudo fdisk /dev/sdc # Create two partitions, first is mkfs.vfat
+sudo dd if=u-boot-sunxi-with-spl.bin of=/dev/sdc bs=1024 seek=8
+
+## OPi Zero: U-Boot on SPI
+# Add lines to /boot/armbianEnv.txt
+# More about overlays can be found in /boot/dtb/overlay/README.sun8i-h3-overlays
+overlays=spi-spidev
+param_spidev_spi_bus=0
+# Then:
+sudo apt install flashrom
+dd if=/dev/zero count=2048 bs=1K | tr '\000' '\377' >spi.img
+dd if=u-boot-sunxi-with-spl.bin of=spi.img bs=1k conv=notrunc
+flashrom -p linux_spi:dev=/dev/spidev0.0 -c MX25L1605 -w spi.img
+# Now eject SD card and reboot
+
+## PC -- set up secondary interface
+sudo ifconfig enx00e04c534458 10.0.0.1 netmask 255.255.255.0 up
+
+## PC -- set up dnsmasq (DHCP, TFTP, PXE)
+sudo apt install dnsmasq
+sudo cp test.conf /etc/dnsmasq.d/.
+sudo service dnsmasq restart
+mkdir /home/keir/tftpd/pxelinux.cfg
+cp -r /mnt/boot/* ~/tftpd/
+
+## PC -- set up NFSD
+sudo apt install nfs-common nfs-server
+#Following line in /etc/exports
+#/opt/nfs 10.0.0.0/24(rw,sync,no_subtree_check,no_root_squash)
+sudo mkdir -p /opt/nfs/OrangePiRoot
+sudo rsync -a /mnt/ /opt/nfs/OrangePiRoot/
+sudo exportfs -ra # Refreshes the NFS exports
+sudo rsync -a

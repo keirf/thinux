@@ -1,0 +1,11 @@
+default tftp_orangepizero
+prompt 0
+timeout 3
+ 
+menu title Boot options
+ 
+label tftp_orangepizero
+   kernel /zImage
+   initrd /uInitrd
+   fdt /dtb/sun8i-h2-plus-orangepi-zero.dtb
+   append earlyprintk console=ttyS0,115200 ip=dhcp rootwait nolock rw nfsroot=10.0.0.1:/opt/nfs/OrangePiRoot,v3 root=/dev/nfs rootdelay=7
