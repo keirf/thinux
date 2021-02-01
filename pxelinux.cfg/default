@@ -1,6 +1,6 @@
-default tftp_orangepizero
+default tftp_Thinux
 prompt 0
-timeout 3
+timeout 1
  
 menu title Boot options
  
@@ -9,3 +9,11 @@ label tftp_orangepizero
    initrd /uInitrd
    fdt /dtb/sun8i-h2-plus-orangepi-zero.dtb
    append earlyprintk console=ttyS0,115200 ip=dhcp rootwait nolock rw nfsroot=10.0.0.1:/opt/nfs/OrangePiRoot,v3 root=/dev/nfs rootdelay=7
+
+label tftp_Thinux
+   kernel /Thinux/zImage
+   fdt /Thinux/sun8i-h2-plus-orangepi-zero.dtb
+   append earlyprintk console=ttyS0,115200 ip=dhcp nfsroot=10.0.0.1:/opt/nfs/ThinuxRoot,v3 root=/dev/nfs
+
+
+#append earlyprintk console=ttyS0,115200 ip=dhcp rootwait nolock rw nfsroot=10.0.0.1:/opt/nfs/ThinuxRoot,v3 root=/dev/nfs
