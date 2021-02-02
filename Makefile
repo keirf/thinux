@@ -22,7 +22,7 @@ dnsmasq:
 # NB v2021.01 network is broken, so we check out v2020.10
 u-boot:
 	[ -d u-boot ] || git clone -b v2020.10 https://github.com/u-boot/u-boot
-	cp uboot_orangepi_zero_defconfig u-boot/configs
+	cp br/board/orangepi_zero/configs/uboot_defconfig u-boot/configs/orangepi_zero_defconfig
 	make -C u-boot mrproper
 	make -C u-boot orangepi_zero_defconfig
 	make -C u-boot -j16 CROSS_COMPILE=arm-linux-gnueabihf-
@@ -60,10 +60,8 @@ armbian-to-network-boot:
 	sudo rsync -a /mnt/ /opt/nfs/OrangePiRoot/
 
 ## Buildroot
-#git clone git://git.buildroot.net/buildroot
-#git checkout 2020.02.1
-#make BR2_DEFCONFIG=../buildroot_orangepi_zero_defconfig defconfig
-#make menuconfig # Tar the root filesystem , under "Filesystem Images"
+#git clone -b 2020.02.1 git://git.buildroot.net/buildroot
+#make -C buildroot BR2_EXTERNAL=../br orangepi_zero_defconfig
 buildroot:
 #	make -C buildroot all
 	cp buildroot/output/images/boot.scr ~/tftpd/Thinux
@@ -74,6 +72,7 @@ buildroot:
 
 clean:
 	make -C u-boot mrproper
+	make -C buildroot clean
 
 mrproper:
 	$(RM) u-boot

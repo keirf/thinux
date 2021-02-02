@@ -47,13 +47,11 @@ sudo exportfs -ra # Refreshes the NFS exports
 sudo rsync -a
 
 ## Buildroot
-git clone git://git.buildroot.net/buildroot
-git checkout 2020.02.1
-make BR2_DEFCONFIG=configs/orangepi_zero_defconfig defconfig
-make menuconfig # Tar the root filesystem , under "Filesystem Images"
-make
-cp output/images/boot.scr ~/tftpd/Thinux
-cp output/images/sun8i-h2-plus-orangepi-zero.dtb ~/tftpd/Thinux
-cp output/images/zImage ~/tftpd/Thinux
+git clone -b 2020.02.1 git://git.buildroot.net/buildroot
+make -C buildroot BR2_EXTERNAL=../br orangepi_zero_defconfig
+make -C buildroot all
+cp buildroot/output/images/boot.scr ~/tftpd/Thinux
+cp buildroot/output/images/sun8i-h2-plus-orangepi-zero.dtb ~/tftpd/Thinux
+cp buildroot/output/images/zImage ~/tftpd/Thinux
 sudo rm -rf /opt/nfs/ThinuxRoot/*
-sudo tar -C /opt/nfs/ThinuxRoot/ -xf output/images/rootfs.tar
+sudo tar -C /opt/nfs/ThinuxRoot/ -xf buildroot/output/images/rootfs.tar
